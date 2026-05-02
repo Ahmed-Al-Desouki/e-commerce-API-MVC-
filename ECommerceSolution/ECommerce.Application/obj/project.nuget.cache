@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DHdHNKh3uII=",
+  "dgSpecHash": "dd7xgfmdMxc=",
   "success": true,
-  "projectFilePath": "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Application\\ECommerce.Application.csproj",
+  "projectFilePath": "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Application\\ECommerce.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pc\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",
     "C:\\Users\\pc\\.nuget\\packages\\portable.bouncycastle\\1.9.0\\portable.bouncycastle.1.9.0.nupkg.sha512"

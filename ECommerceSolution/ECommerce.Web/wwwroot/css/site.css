@@ -1,31 +1,193 @@
+:root {
+  --bg: #f5f1ea;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: #ffffff;
+  --text: #18212b;
+  --muted: #64707d;
+  --brand: #0d3b66;
+  --accent: #ef8354;
+  --accent-strong: #d96b3d;
+  --border: rgba(24, 33, 43, 0.08);
+  --shadow: 0 20px 60px rgba(13, 59, 102, 0.12);
+}
+
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
+  font-size: 16px;
   min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(239, 131, 84, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(13, 59, 102, 0.14), transparent 28%),
+    linear-gradient(180deg, #fbf8f3 0%, var(--bg) 100%);
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.page-content {
+  flex: 1;
+}
+
+.app-navbar {
+  background: rgba(13, 59, 102, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(8, 40, 69, 0.18);
+}
+
+.navbar-brand,
+.nav-link,
+.navbar-toggler {
+  color: #fff !important;
+}
+
+.nav-link {
+  opacity: 0.88;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  opacity: 1;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.92rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--muted);
+}
+
+.hero-panel,
+.auth-card,
+.empty-state,
+.detail-image-panel,
+.admin-note {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.hero-panel,
+.empty-state,
+.admin-note {
+  padding: 2rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--brand);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.btn-accent {
+  color: #fff;
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-accent:hover,
+.btn-accent:focus,
+.btn-accent:active {
+  color: #fff !important;
+  background-color: var(--accent-strong) !important;
+  border-color: var(--accent-strong) !important;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(239, 131, 84, 0.18);
+}
+
+.form-control {
+  border-radius: 0.9rem;
+  border-color: rgba(24, 33, 43, 0.12);
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.min-vh-75 {
+  min-height: 75vh;
+}
+
+.page-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .page-hero {
+    align-items: end;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+}
+
+.product-card {
+  overflow: hidden;
+  border-radius: 1.4rem;
+  background: var(--surface-strong);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(24, 33, 43, 0.12) !important;
+}
+
+.product-image-wrap {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(13, 59, 102, 0.08), rgba(239, 131, 84, 0.12));
+}
+
+.product-image,
+.detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-price {
+  color: var(--brand);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.detail-image-panel {
+  overflow: hidden;
+  min-height: 420px;
+}
+
+.detail-image {
+  min-height: 420px;
+}
+
+.empty-state {
+  text-align: center;
 }

@@ -1,13 +1,17 @@
-﻿@model ECommerce.Web.Models.CartViewModel
+@model ECommerce.Web.Models.CartViewModel
 @{
     ViewData["Title"] = "My Cart";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>My Cart</h3>
+    <div>
+        <span class="eyebrow">Cart</span>
+        <h1 class="h3 mb-0">Your shopping cart</h1>
+    </div>
     @if (Model.Items.Any())
     {
         <form asp-action="Clear" method="post">
+            @Html.AntiForgeryToken()
             <button class="btn btn-outline-danger btn-sm"
                     onclick="return confirm('Clear entire cart?')">
                 Clear Cart
@@ -18,39 +22,48 @@
 
 @if (!Model.Items.Any())
 {
-    <div class="alert alert-info">Your cart is empty.</div>
+    <div class="empty-state">
+        <h2 class="h4 mb-2">Your cart is empty</h2>
+        <p class="text-muted mb-3">Add products from the catalog to start checkout.</p>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-accent">Browse Products</a>
+    </div>
 }
 else
 {
-    <table class="table table-bordered align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Product</th>
-                <th>Unit Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                <tr>
-                    <td>@item.ProductName</td>
-                    <td>$@item.UnitPrice.ToString("0.00")</td>
-                    <td>@item.Quantity</td>
-                    <td>$@((item.UnitPrice * item.Quantity).ToString("0.00"))</td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr class="table-success fw-bold">
-                <td colspan="3" class="text-end">Total</td>
-                <td>$@Model.Total.ToString("0.00")</td>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>$@item.UnitPrice.ToString("0.00")</td>
+                            <td>@item.Quantity</td>
+                            <td>$@((item.UnitPrice * item.Quantity).ToString("0.00"))</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-success fw-bold">
+                        <td colspan="3" class="text-end">Total</td>
+                        <td>$@Model.Total.ToString("0.00")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
     <form asp-controller="Order" asp-action="Checkout" method="post" class="text-end">
-        <button type="submit" class="btn btn-success px-5">Checkout</button>
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-accent btn-lg px-5 mt-4">Checkout</button>
     </form>
 }

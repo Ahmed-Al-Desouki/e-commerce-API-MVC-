@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj": {}
+    "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj": {
+    "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj",
         "projectName": "ECommerce.Domain",
-        "projectPath": "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj",
+        "projectPath": "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Domain\\ECommerce.Domain.csproj",
         "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pc\\Desktop\\New folder (2)\\ECommerceSolution\\ECommerce.Domain\\obj\\",
+        "outputPath": "C:\\Users\\pc\\Desktop\\e-commerce project\\ECommerceSolution\\ECommerce.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

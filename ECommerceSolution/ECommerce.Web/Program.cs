@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Web
+using ECommerce.Web.Services;
+
+namespace ECommerce.Web
 {
     public class Program
     {
@@ -6,16 +8,14 @@
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ─── MVC ─────────────────────────────────────────────────────────────────────
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<ProductImageStore>();
 
-            // ─── HttpClient (points to API) ───────────────────────────────────────────────
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:7236/api/");
             });
 
-            // ─── Session (stores JWT token between requests) ──────────────────────────────
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
@@ -35,14 +35,12 @@
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-
-            app.UseSession(); // ← must come before MapControllerRoute
-
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Products}/{action=Index}/{id?}");
+                pattern: "{controller=Auth}/{action=Login}/{id?}");
 
             app.Run();
         }
