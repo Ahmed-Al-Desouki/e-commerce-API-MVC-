@@ -1,0 +1,12 @@
+﻿.vs/
+bin/
+obj/
+
+*.user
+*.suo
+*.cache
+*.log
+
+# ASP.NET specific
+wwwroot/uploads/
+App_Data/
