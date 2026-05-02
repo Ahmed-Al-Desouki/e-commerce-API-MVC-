@@ -1,0 +1,47 @@
+﻿@model List<ECommerce.Web.Models.ProductViewModel>
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>All Products</h3>
+    @if (ViewBag.IsAdmin == true)
+    {
+        <a asp-action="Create" class="btn btn-success">+ Add Product</a>
+    }
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var product in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text text-muted">Stock: @product.Stock</p>
+                    <p class="fw-bold text-success fs-5">$@product.Price.ToString("0.00")</p>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    @if (ViewBag.IsLoggedIn == true)
+                    {
+                        <form asp-controller="Cart" asp-action="Add" method="post">
+                            <input type="hidden" name="ProductId" value="@product.Id" />
+                            <input type="hidden" name="Quantity" value="1" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Add to Cart
+                            </button>
+                        </form>
+                    }
+                    @if (ViewBag.IsAdmin == true)
+                    {
+                        <form asp-action="Delete" method="post"
+                              onsubmit="return confirm('Delete this product?')">
+                            <input type="hidden" name="id" value="@product.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

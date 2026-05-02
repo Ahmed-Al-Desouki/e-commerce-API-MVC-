@@ -1,0 +1,54 @@
+﻿@model List<ECommerce.Web.Models.OrderViewModel>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<h3 class="mb-4">My Orders</h3>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">You have no orders yet.</div>
+}
+else
+{
+    @foreach (var order in Model)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header d-flex justify-content-between">
+                <span>Order #@order.OrderId</span>
+                <span class="text-muted">@order.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.Items)
+                        {
+                            <tr>
+                                <td>@item.ProductName</td>
+                                <td>@item.Quantity</td>
+                                <td>$@item.Price.ToString("0.00")</td>
+                                <td>$@((item.Price * item.Quantity).ToString("0.00"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-end fw-bold text-success">
+                Total: $@order.TotalAmount.ToString("0.00")
+            </div>
+        </div>
+    }
+}
