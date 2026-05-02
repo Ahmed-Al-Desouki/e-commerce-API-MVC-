@@ -1,4 +1,5 @@
 using ECommerce.Web.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace ECommerce.Web
 {
@@ -10,6 +11,10 @@ namespace ECommerce.Web
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<ProductImageStore>();
+            builder.Services
+                .AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys")))
+                .SetApplicationName("ECommerce.Web");
 
             builder.Services.AddHttpClient("ApiClient", client =>
             {
@@ -19,6 +24,7 @@ namespace ECommerce.Web
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
+                options.Cookie.Name = ".ECommerce.Web.Session";
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;

@@ -99,7 +99,6 @@ C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\appsettings.json
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.staticwebassets.runtime.json
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.staticwebassets.endpoints.json
-C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.exe
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.deps.json
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.runtimeconfig.json
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.dll
@@ -192,3 +191,6 @@ C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\obj\Debug
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\obj\Debug\net9.0\ECommerce.Web.pdb
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\obj\Debug\net9.0\ECommerce.Web.genruntimeconfig.cache
 C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\obj\Debug\net9.0\ref\ECommerce.Web.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\App_Data\product-images.json
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\bin\Debug\net9.0\ECommerce.Web.exe
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Web\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

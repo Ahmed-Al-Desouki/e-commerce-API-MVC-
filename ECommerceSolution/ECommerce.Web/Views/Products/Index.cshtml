@@ -56,6 +56,8 @@ else
 
                             @if (ViewBag.IsAdmin == true)
                             {
+                                <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-outline-primary">Edit</a>
+
                                 <form asp-action="Delete" method="post" class="d-inline-flex" onsubmit="return confirm('Delete this product?')">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@product.Id" />

@@ -29,35 +29,43 @@ namespace ECommerce.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var client = _factory.CreateClient("ApiClient");
-            var response = await client.PostAsJsonAsync("auth/login", new
+            try
             {
-                model.Email,
-                model.Password
-            });
+                var client = _factory.CreateClient("ApiClient");
+                var response = await client.PostAsJsonAsync("auth/login", new
+                {
+                    model.Email,
+                    model.Password
+                });
 
-            if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                    return View(model);
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
+                if (result is null)
+                {
+                    ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                    return View(model);
+                }
+
+                SessionHelper.SetUserSession(HttpContext.Session,
+                    result.Token, result.Username, result.IsAdmin, result.UserId);
+
+                TempData["Success"] = $"Welcome back, {result.Username}!";
+
+                if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                    return Redirect(model.ReturnUrl);
+
+                return RedirectToAction("Index", "Products");
+            }
+            catch (HttpRequestException)
             {
-                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                ModelState.AddModelError(string.Empty, "The API is not reachable right now. Start the API project, then try logging in again.");
                 return View(model);
             }
-
-            var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
-            if (result is null)
-            {
-                ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
-                return View(model);
-            }
-
-            SessionHelper.SetUserSession(HttpContext.Session,
-                result.Token, result.Username, result.IsAdmin, result.UserId);
-
-            TempData["Success"] = $"Welcome back, {result.Username}!";
-
-            if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-                return Redirect(model.ReturnUrl);
-
-            return RedirectToAction("Index", "Products");
         }
 
         [HttpGet]
@@ -76,27 +84,35 @@ namespace ECommerce.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var client = _factory.CreateClient("ApiClient");
-            var response = await client.PostAsJsonAsync("auth/register", model);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                ModelState.AddModelError(string.Empty, "Registration failed. Email may already be in use.");
+                var client = _factory.CreateClient("ApiClient");
+                var response = await client.PostAsJsonAsync("auth/register", model);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ModelState.AddModelError(string.Empty, "Registration failed. Email may already be in use.");
+                    return View(model);
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
+                if (result is null)
+                {
+                    ModelState.AddModelError(string.Empty, "Registration failed. Please try again.");
+                    return View(model);
+                }
+
+                SessionHelper.SetUserSession(HttpContext.Session,
+                    result.Token, result.Username, result.IsAdmin, result.UserId);
+
+                TempData["Success"] = "Your account has been created.";
+                return RedirectToAction("Index", "Products");
+            }
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError(string.Empty, "The API is not reachable right now. Start the API project, then try registering again.");
                 return View(model);
             }
-
-            var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
-            if (result is null)
-            {
-                ModelState.AddModelError(string.Empty, "Registration failed. Please try again.");
-                return View(model);
-            }
-
-            SessionHelper.SetUserSession(HttpContext.Session,
-                result.Token, result.Username, result.IsAdmin, result.UserId);
-
-            TempData["Success"] = "Your account has been created.";
-            return RedirectToAction("Index", "Products");
         }
 
         public IActionResult Logout()

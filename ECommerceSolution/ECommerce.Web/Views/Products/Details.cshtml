@@ -1,0 +1,43 @@
+@model ECommerce.Web.Models.ProductViewModel
+@{
+    ViewData["Title"] = "Product Details";
+    var imageUrl = string.IsNullOrWhiteSpace(Model.ImageUrl)
+        ? "https://placehold.co/960x720/e8ecef/5b6570?text=No+Image"
+        : Model.ImageUrl;
+}
+
+<div class="row g-4 g-lg-5 align-items-start">
+    <div class="col-lg-6">
+        <div class="detail-image-panel shadow-sm">
+            <img src="@imageUrl" alt="@Model.Name" class="detail-image" />
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <span class="eyebrow">Product Details</span>
+        <h1 class="display-6 fw-semibold mb-3">@Model.Name</h1>
+        <p class="product-price mb-3">$@Model.Price.ToString("0.00")</p>
+        <p class="text-muted mb-4">Availability: @(Model.Stock > 0 ? $"{Model.Stock} in stock" : "Currently out of stock")</p>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <form asp-controller="Cart" asp-action="Add" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ProductId" value="@Model.Id" />
+                <input type="hidden" name="Quantity" value="1" />
+                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Products", new { id = Model.Id })" />
+                <button type="submit" class="btn btn-accent btn-lg" @(Model.Stock == 0 ? "disabled" : null)>Add to Cart</button>
+            </form>
+            <a asp-action="Index" class="btn btn-outline-dark btn-lg">Back to Products</a>
+        </div>
+
+        @if (ViewBag.IsAdmin == true)
+        {
+            <div class="admin-note">
+                Admin view: manage catalog items from the products page or create new entries with image support.
+            </div>
+            <div class="mt-3">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit Product</a>
+            </div>
+        }
+    </div>
+</div>

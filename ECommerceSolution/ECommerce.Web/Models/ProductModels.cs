@@ -30,4 +30,28 @@ namespace ECommerce.Web.Models
         [Display(Name = "Upload image")]
         public IFormFile? ImageFile { get; set; }
     }
+
+    public class EditProductViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Product name is required.")]
+        [StringLength(120, ErrorMessage = "Product name must be 120 characters or fewer.")]
+        public string Name { get; set; } = string.Empty;
+
+        [Range(0.01, 999999, ErrorMessage = "Price must be greater than 0.")]
+        public decimal Price { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Stock cannot be negative.")]
+        public int Stock { get; set; }
+
+        [Display(Name = "Image URL")]
+        [Url(ErrorMessage = "Enter a valid image URL.")]
+        public string? ImageUrl { get; set; }
+
+        [Display(Name = "Upload new image")]
+        public IFormFile? ImageFile { get; set; }
+
+        public string? CurrentImageUrl { get; set; }
+    }
 }

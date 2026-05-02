@@ -63,6 +63,39 @@ namespace ECommerce.Web.Controllers
             return View();
         }
 
+        [HttpGet]
+        [RequireSession(AdminOnly = true)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var client = _factory.CreateClient("ApiClient");
+            var response = await client.GetAsync($"products/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "We couldn't find that product.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var product = await response.Content.ReadFromJsonAsync<ProductViewModel>();
+            if (product is null)
+            {
+                TempData["Error"] = "We couldn't load that product.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var imageUrl = product.ImageUrl ?? _productImageStore.GetImageUrl(product.Id);
+
+            return View(new EditProductViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                Stock = product.Stock,
+                CurrentImageUrl = imageUrl,
+                ImageUrl = imageUrl
+            });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireSession(AdminOnly = true)]
@@ -96,6 +129,42 @@ namespace ECommerce.Web.Controllers
             }
 
             TempData["Success"] = "Product created successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireSession(AdminOnly = true)]
+        public async Task<IActionResult> Edit(EditProductViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.CurrentImageUrl ??= _productImageStore.GetImageUrl(model.Id);
+                return View(model);
+            }
+
+            var token = SessionHelper.GetToken(HttpContext.Session);
+            var client = _factory.CreateClient("ApiClient");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PutAsJsonAsync($"products/{model.Id}", new
+            {
+                model.Name,
+                model.Price,
+                model.Stock
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update product.");
+                model.CurrentImageUrl ??= _productImageStore.GetImageUrl(model.Id);
+                return View(model);
+            }
+
+            await _productImageStore.SaveImageAsync(model.Id, model.ImageFile, model.ImageUrl);
+
+            TempData["Success"] = "Product updated successfully.";
             return RedirectToAction(nameof(Index));
         }
 

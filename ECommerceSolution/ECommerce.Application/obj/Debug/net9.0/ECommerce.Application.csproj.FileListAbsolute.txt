@@ -13,3 +13,19 @@ C:\Users\pc\Desktop\New folder (2)\ECommerceSolution\ECommerce.Application\obj\D
 C:\Users\pc\Desktop\New folder (2)\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\refint\ECommerce.Application.dll
 C:\Users\pc\Desktop\New folder (2)\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.pdb
 C:\Users\pc\Desktop\New folder (2)\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ref\ECommerce.Application.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.deps.json
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.pdb
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.AssemblyReference.cache
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfoInputs.cache
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfo.cs
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.CoreCompileInputs.cache
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.sourcelink.json
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerc.670E0CBE.Up2Date
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\refint\ECommerce.Application.dll
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\pc\Desktop\e-commerce project\ECommerceSolution\ECommerce.Application\obj\Debug\net9.0\ref\ECommerce.Application.dll
