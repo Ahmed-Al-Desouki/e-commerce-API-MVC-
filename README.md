@@ -128,121 +128,129 @@ SQL Server Database
 
 ## ⚙️ Setup Instructions
 
-### 1. Clone Repository
+### 1. Clone the Repository
 
-````
-git clone <your-repo-url>
-``` id="c6n9bw"
-
----
-
-### 2. Open Solution
-
-Open `ECommerceSolution.sln` in Visual Studio
+```bash
+git clone https://github.com/Ahmed-Al-Desouki/e-commerce-API-MVC-.git
+cd e-commerce-API-MVC-
+```
 
 ---
 
-### 3. Configure Database
+### 2. Open the Solution
 
-Update connection string in:
+Open the solution file in Visual Studio:
 
-````
+```
+ECommerceSolution.sln
+```
 
+---
+
+### 3. Configure the Database
+
+Update the connection string in:
+
+```
 ECommerce.API/appsettings.json
-
-````id="4n39qr"
+```
 
 Example:
 
-```json id="3y5x9t"
+```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.;Database=ECommerceDb;Trusted_Connection=True;TrustServerCertificate=True;"
 }
-````
+```
 
 ---
 
-### 4. Apply Migrations
+### 4. Apply Migrations (Code First)
 
-Open Package Manager Console:
+Open **Package Manager Console** and run:
 
-````
+```powershell
 Add-Migration InitialCreate
 Update-Database
-``` id="tfp8r9"
+```
 
 ---
 
-### 5. Run the Project
+### 5. Run the Application
 
-- Run **API Project**
-- Run **MVC Project**
+* Set **ECommerce.API** as Startup Project and run it
+* Set **ECommerce.Web** as Startup Project and run it
+
+> Make sure both projects are running to allow MVC to communicate with the API.
 
 ---
 
 ## 📚 Documentation
 
-The project includes:
+This project includes:
 
-- 📄 SRS Document  
-- 📊 UML Diagrams  
-  - Use Case  
-  - Class Diagram  
-  - Sequence Diagram  
-- 📘 API Documentation (Swagger)  
+* 📄 Software Requirements Specification (SRS)
+* 📊 UML Diagrams
+
+  * Use Case Diagram
+  * Class Diagram
+  * Sequence Diagram
+* 📘 API Documentation via Swagger
 
 ---
 
 ## 🧪 Testing
 
-- Unit tests implemented using **xUnit**
-- Focus on Application Layer
-- Includes test cases documentation
+* Unit tests implemented using **xUnit**
+* Focus on testing the **Application Layer**
+* Includes structured test cases documentation
 
 ---
 
 ## 🔄 Agile (Scrum Simulation)
 
-The project simulates 4 sprints:
+This project simulates an Agile workflow using 4 sprints:
 
-| Sprint | Description |
-|------|------------|
-| Sprint 1 | Requirements (SRS) |
-| Sprint 2 | Design (UML + Architecture) |
-| Sprint 3 | Implementation |
-| Sprint 4 | Testing & Documentation |
+| Sprint   | Description                        |
+| -------- | ---------------------------------- |
+| Sprint 1 | Requirements Gathering (SRS)       |
+| Sprint 2 | System Design (UML + Architecture) |
+| Sprint 3 | Implementation                     |
+| Sprint 4 | Testing & Documentation            |
 
 ---
 
 ## 🔧 Git Workflow
 
-- `main` branch  
-- Feature branches  
-- Pull Requests (simulated)  
+The project follows a simplified Git workflow:
+
+* `main` branch for stable code
+* Feature branches for development
+* Pull Requests (simulated) for integration
 
 ---
 
 ## 📊 Evaluation Coverage
 
-This project satisfies:
+This project satisfies all required evaluation criteria:
 
-- ✅ SRS & Requirements  
-- ✅ UML Diagrams  
-- ✅ Architecture & Design Patterns  
-- ✅ Clean Code  
-- ✅ Testing  
-- ✅ Agile Process  
-- ✅ Presentation  
+* ✅ SRS & Requirements
+* ✅ UML Diagrams
+* ✅ Architecture & Design Patterns
+* ✅ Clean Code Practices
+* ✅ Testing & QA
+* ✅ Agile Process
+* ✅ Final Presentation
 
 ---
 
 ## 💡 Key Highlights
 
-- Clean separation of concerns  
-- Real-world architecture  
-- Scalable and maintainable structure  
-- API-first design  
-- MVC acts as a client  
+* Clear separation of concerns using Clean Architecture
+* Real-world layered design
+* Scalable and maintainable structure
+* API-first approach
+* MVC acts as a client consuming the API via HTTP
 
 ---
 
@@ -250,31 +258,38 @@ This project satisfies:
 
 The final presentation includes:
 
-- Problem Definition  
-- Proposed Solution  
-- System Architecture  
-- UML Diagrams  
-- Live Demo  
+* Problem Definition
+* Proposed Solution
+* System Architecture
+* UML Diagrams
+* Live System Demo
 
 ---
 
 ## 🏁 Conclusion
 
-This project demonstrates how to build a **clean, maintainable, and scalable system** using modern software engineering practices.
+This project demonstrates how to build a **clean, scalable, and maintainable system** using modern software engineering principles and best practices.
 
 ---
 
 ## 👨‍💻 Author
 
-- Your Name Here
+* Ahmed Al-Desouki
 
 ---
 
 ## 📌 Notes
 
-- This project focuses on **structure and practices**, not complexity  
-- UI is intentionally simple  
-- Architecture is the main highlight  
+* The focus is on **architecture and best practices**, not feature complexity
+* The UI is intentionally simple
+* The system is designed to be easily extendable
+
+---
+
+## ⭐ Support
+
+If you found this project useful, feel free to ⭐ star the repository:
+👉 https://github.com/Ahmed-Al-Desouki/e-commerce-API-MVC-.git
 
 ---
 
