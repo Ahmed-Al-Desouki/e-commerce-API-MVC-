@@ -46,21 +46,6 @@ namespace ECommerce.Application.Services
             return MapToDto(product);
         }
 
-        public async Task<ProductDto> UpdateAsync(int id, UpdateProductDto dto)
-        {
-            var product = await _productRepository.GetByIdAsync(id);
-            if (product is null)
-                throw new KeyNotFoundException($"Product with id {id} not found.");
-
-            product.Name = dto.Name;
-            product.Price = dto.Price;
-            product.Stock = dto.Stock;
-
-            await _productRepository.SaveChangesAsync();
-
-            return MapToDto(product);
-        }
-
         public async Task DeleteAsync(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);

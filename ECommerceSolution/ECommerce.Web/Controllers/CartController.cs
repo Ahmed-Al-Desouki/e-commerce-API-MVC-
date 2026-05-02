@@ -1,12 +1,10 @@
-using ECommerce.API.Helpers;
-using ECommerce.Web.Filters;
+﻿using ECommerce.API.Helpers;
 using ECommerce.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 
 namespace ECommerce.Web.Controllers
 {
-    [RequireSession]
     public class CartController : Controller
     {
         private readonly IHttpClientFactory _factory;
@@ -27,40 +25,31 @@ namespace ECommerce.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (!SessionHelper.IsLoggedIn(HttpContext.Session))
+                return RedirectToAction("Login", "Auth");
+
             var client = CreateAuthorizedClient();
             var cart = await client.GetFromJsonAsync<CartViewModel>("cart");
             return View(cart ?? new CartViewModel());
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(AddToCartViewModel model, string? returnUrl)
+        public async Task<IActionResult> Add(AddToCartViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["Error"] = "Please choose a valid quantity.";
-                return RedirectToAction("Index", "Products");
-            }
+            if (!SessionHelper.IsLoggedIn(HttpContext.Session))
+                return RedirectToAction("Login", "Auth");
 
             var client = CreateAuthorizedClient();
             await client.PostAsJsonAsync("cart/items", model);
-
-            TempData["Success"] = "Product added to cart.";
-
-            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Clear()
         {
             var client = CreateAuthorizedClient();
             await client.DeleteAsync("cart");
-            TempData["Success"] = "Cart cleared.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
     }
 }

@@ -47,22 +47,6 @@ namespace ECommerce.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        /// <summary>Update an existing product. Admin only.</summary>
-        [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
-        {
-            try
-            {
-                var updated = await _productService.UpdateAsync(id, dto);
-                return Ok(updated);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-        }
-
         /// <summary>Delete a product. Admin only.</summary>
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]

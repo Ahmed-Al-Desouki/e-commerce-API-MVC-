@@ -1,4 +1,4 @@
-using ECommerce.API.Helpers;
+﻿using ECommerce.API.Helpers;
 using ECommerce.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,111 +14,56 @@ namespace ECommerce.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
-        {
-            if (SessionHelper.IsLoggedIn(HttpContext.Session))
-                return RedirectToAction("Index", "Products");
-
-            return View(new LoginViewModel { ReturnUrl = returnUrl });
-        }
+        public IActionResult Login() => View();
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            var client = _factory.CreateClient("ApiClient");
+            var response = await client.PostAsJsonAsync("auth/login", model);
 
-            try
+            if (!response.IsSuccessStatusCode)
             {
-                var client = _factory.CreateClient("ApiClient");
-                var response = await client.PostAsJsonAsync("auth/login", new
-                {
-                    model.Email,
-                    model.Password
-                });
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid email or password.");
-                    return View(model);
-                }
-
-                var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
-                if (result is null)
-                {
-                    ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
-                    return View(model);
-                }
-
-                SessionHelper.SetUserSession(HttpContext.Session,
-                    result.Token, result.Username, result.IsAdmin, result.UserId);
-
-                TempData["Success"] = $"Welcome back, {result.Username}!";
-
-                if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-                    return Redirect(model.ReturnUrl);
-
-                return RedirectToAction("Index", "Products");
-            }
-            catch (HttpRequestException)
-            {
-                ModelState.AddModelError(string.Empty, "The API is not reachable right now. Start the API project, then try logging in again.");
+                ViewBag.Error = "Invalid email or password.";
                 return View(model);
             }
+
+            var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
+            if (result is null) return View(model);
+
+            SessionHelper.SetUserSession(HttpContext.Session,
+                result.Token, result.Username, result.IsAdmin, result.UserId);
+
+            return RedirectToAction("Index", "Products");
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            if (SessionHelper.IsLoggedIn(HttpContext.Session))
-                return RedirectToAction("Index", "Products");
-
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            var client = _factory.CreateClient("ApiClient");
+            var response = await client.PostAsJsonAsync("auth/register", model);
 
-            try
+            if (!response.IsSuccessStatusCode)
             {
-                var client = _factory.CreateClient("ApiClient");
-                var response = await client.PostAsJsonAsync("auth/register", model);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    ModelState.AddModelError(string.Empty, "Registration failed. Email may already be in use.");
-                    return View(model);
-                }
-
-                var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
-                if (result is null)
-                {
-                    ModelState.AddModelError(string.Empty, "Registration failed. Please try again.");
-                    return View(model);
-                }
-
-                SessionHelper.SetUserSession(HttpContext.Session,
-                    result.Token, result.Username, result.IsAdmin, result.UserId);
-
-                TempData["Success"] = "Your account has been created.";
-                return RedirectToAction("Index", "Products");
-            }
-            catch (HttpRequestException)
-            {
-                ModelState.AddModelError(string.Empty, "The API is not reachable right now. Start the API project, then try registering again.");
+                ViewBag.Error = "Registration failed. Email may already be in use.";
                 return View(model);
             }
+
+            var result = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
+            if (result is null) return View(model);
+
+            SessionHelper.SetUserSession(HttpContext.Session,
+                result.Token, result.Username, result.IsAdmin, result.UserId);
+
+            return RedirectToAction("Index", "Products");
         }
 
         public IActionResult Logout()
         {
             SessionHelper.Clear(HttpContext.Session);
-            TempData["Success"] = "You have been logged out.";
             return RedirectToAction("Login");
         }
     }

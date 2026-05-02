@@ -1,7 +1,4 @@
-using ECommerce.Web.Services;
-using Microsoft.AspNetCore.DataProtection;
-
-namespace ECommerce.Web
+﻿namespace ECommerce.Web
 {
     public class Program
     {
@@ -9,22 +6,19 @@ namespace ECommerce.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // ─── MVC ─────────────────────────────────────────────────────────────────────
             builder.Services.AddControllersWithViews();
-            builder.Services.AddSingleton<ProductImageStore>();
-            builder.Services
-                .AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys")))
-                .SetApplicationName("ECommerce.Web");
 
+            // ─── HttpClient (points to API) ───────────────────────────────────────────────
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:7236/api/");
             });
 
+            // ─── Session (stores JWT token between requests) ──────────────────────────────
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
-                options.Cookie.Name = ".ECommerce.Web.Session";
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
@@ -41,12 +35,14 @@ namespace ECommerce.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseSession();
+
+            app.UseSession(); // ← must come before MapControllerRoute
+
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Auth}/{action=Login}/{id?}");
+                pattern: "{controller=Products}/{action=Index}/{id?}");
 
             app.Run();
         }

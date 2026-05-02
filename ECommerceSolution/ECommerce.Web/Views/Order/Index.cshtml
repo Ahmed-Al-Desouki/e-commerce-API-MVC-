@@ -1,27 +1,25 @@
-@model List<ECommerce.Web.Models.OrderViewModel>
+﻿@model List<ECommerce.Web.Models.OrderViewModel>
 @{
     ViewData["Title"] = "My Orders";
 }
 
-<div class="mb-4">
-    <span class="eyebrow">Orders</span>
-    <h1 class="h3 mb-0">Your order history</h1>
-</div>
+<h3 class="mb-4">My Orders</h3>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
 @if (!Model.Any())
 {
-    <div class="empty-state">
-        <h2 class="h4 mb-2">You have no orders yet</h2>
-        <p class="text-muted mb-3">Complete checkout from your cart to see orders here.</p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-accent">Shop Now</a>
-    </div>
+    <div class="alert alert-info">You have no orders yet.</div>
 }
 else
 {
     @foreach (var order in Model)
     {
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header d-flex justify-content-between">
                 <span>Order #@order.OrderId</span>
                 <span class="text-muted">@order.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
             </div>
