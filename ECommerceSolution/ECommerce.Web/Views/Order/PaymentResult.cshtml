@@ -1,0 +1,48 @@
+@model ECommerce.Web.Models.PaymentResultViewModel
+@{
+    ViewData["Title"] = "Payment Result";
+    var statusClass = Model.IsSuccess ? "payment-success" : Model.IsPending ? "payment-pending" : "payment-failed";
+    var statusTitle = Model.IsSuccess ? "Payment Completed" : Model.IsPending ? "Payment Pending" : "Payment Failed";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm payment-result-card @statusClass">
+            <div class="card-body p-4 p-lg-5">
+                <span class="eyebrow">Payment Status</span>
+                <h1 class="h2 mb-3">@statusTitle</h1>
+                <p class="lead mb-4">@Model.Message</p>
+
+                <div class="result-grid mb-4">
+                    <div class="result-item">
+                        <span>Order ID</span>
+                        <strong>@(Model.OrderId == 0 ? "-" : Model.OrderId)</strong>
+                    </div>
+                    <div class="result-item">
+                        <span>Order Status</span>
+                        <strong>@Model.OrderStatus</strong>
+                    </div>
+                    <div class="result-item">
+                        <span>Payment Status</span>
+                        <strong>@Model.PaymentStatus</strong>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Amount</span>
+                        <strong>$@Model.TotalAmount.ToString("0.00")</strong>
+                    </div>
+                </div>
+
+                <div class="checkout-progress mb-4">
+                    <div class="progress-step complete">1. Cart</div>
+                    <div class="progress-step complete">2. Checkout</div>
+                    <div class="progress-step @(Model.IsSuccess ? "complete" : "active")">3. Payment</div>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-end gap-2">
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-dark">Back to Cart</a>
+                    <a asp-controller="Order" asp-action="Index" class="btn btn-accent">View Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Web.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace ECommerce.Web.Models
 {
     public class CartViewModel
     {
@@ -17,7 +19,10 @@
 
     public class AddToCartViewModel
     {
+        [Range(1, int.MaxValue)]
         public int ProductId { get; set; }
+
+        [Range(1, 99, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
     }
 }

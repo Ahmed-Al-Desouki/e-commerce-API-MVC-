@@ -10,6 +10,8 @@ namespace ECommerce.Application.Interfaces.Repositories
     public interface IOrderRepository
     {
         Task<IEnumerable<Order>> GetByUserIdAsync(int userId);
+        Task<Order?> GetByIdAsync(int id);
+        Task<Order?> GetByMerchantOrderIdAsync(string merchantOrderId);
         Task AddAsync(Order order);
         Task SaveChangesAsync();
     }

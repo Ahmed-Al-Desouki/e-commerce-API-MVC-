@@ -10,6 +10,7 @@ namespace ECommerce.Application.Interfaces.Services
     public interface IOrderService
     {
         Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId);
-        Task<OrderDto> CheckoutAsync(int userId);
+        Task<CheckoutSessionDto> InitiateCheckoutAsync(int userId, CheckoutRequestDto request, CancellationToken cancellationToken = default);
+        Task<PaymentResultDto> ProcessPaymentCallbackAsync(PaymentCallbackDto callback, CancellationToken cancellationToken = default);
     }
 }

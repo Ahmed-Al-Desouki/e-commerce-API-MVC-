@@ -1,0 +1,127 @@
+@model ECommerce.Web.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="mb-4">
+    <span class="eyebrow">Checkout</span>
+    <h1 class="h3 mb-0">Delivery and payment details</h1>
+</div>
+
+<div class="checkout-progress mb-4">
+    <div class="progress-step complete">1. Cart</div>
+    <div class="progress-step active">2. Checkout</div>
+    <div class="progress-step">3. Payment</div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                    <div>
+                        <h2 class="h4 mb-2">Shipping information</h2>
+                        <p class="text-muted mb-0">Fill in the delivery details, then continue to secure payment.</p>
+                    </div>
+                    <span class="payment-badge">Paymob</span>
+                </div>
+
+                <form asp-action="StartPayment" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control form-control-lg" placeholder="First name" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control form-control-lg" placeholder="Last name" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control form-control-lg" placeholder="name@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control form-control-lg" placeholder="+20..." />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control form-control-lg" placeholder="City" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="State" class="form-label"></label>
+                            <input asp-for="State" class="form-control form-control-lg" placeholder="State" />
+                            <span asp-validation-for="State" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="Street" class="form-label"></label>
+                            <input asp-for="Street" class="form-control form-control-lg" placeholder="Street name" />
+                            <span asp-validation-for="Street" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Building" class="form-label"></label>
+                            <input asp-for="Building" class="form-control form-control-lg" placeholder="Building" />
+                            <span asp-validation-for="Building" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Apartment" class="form-label"></label>
+                            <input asp-for="Apartment" class="form-control" placeholder="Optional" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Floor" class="form-label"></label>
+                            <input asp-for="Floor" class="form-control" placeholder="Optional" />
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions mt-4">
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-dark btn-lg">Back to Cart</a>
+                        <button type="submit" class="btn btn-accent btn-lg px-4">Continue to Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm summary-card sticky-card">
+            <div class="card-body p-4">
+                <span class="eyebrow">Order Summary</span>
+                <h2 class="h4 mb-3">Review before payment</h2>
+
+                <div class="summary-list">
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="summary-item">
+                            <div>
+                                <strong>@item.ProductName</strong>
+                                <div class="text-muted small">Qty: @item.Quantity</div>
+                            </div>
+                            <strong>$@((item.UnitPrice * item.Quantity).ToString("0.00"))</strong>
+                        </div>
+                    }
+                </div>
+
+                <div class="summary-total">
+                    <span>Total</span>
+                    <strong>$@Model.Cart.Total.ToString("0.00")</strong>
+                </div>
+
+                <div class="payment-note mt-4">
+                    You’ll be redirected to the secure payment provider after this step to complete the transaction.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

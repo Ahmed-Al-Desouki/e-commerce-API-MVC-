@@ -1,12 +1,7 @@
-﻿using ECommerce.Application.Interfaces.Repositories;
+using ECommerce.Application.Interfaces.Repositories;
 using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Infrastructure.Repositories
 {
@@ -23,8 +18,24 @@ namespace ECommerce.Infrastructure.Repositories
             await _context.Orders
                 .Include(o => o.Items)
                     .ThenInclude(i => i.Product)
+                .Include(o => o.Payment)
                 .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
+
+        public async Task<Order?> GetByIdAsync(int id) =>
+            await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Product)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+        public async Task<Order?> GetByMerchantOrderIdAsync(string merchantOrderId) =>
+            await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Product)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Payment != null && o.Payment.MerchantOrderId == merchantOrderId);
 
         public async Task AddAsync(Order order) =>
             await _context.Orders.AddAsync(order);

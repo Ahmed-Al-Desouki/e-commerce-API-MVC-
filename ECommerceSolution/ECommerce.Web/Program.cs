@@ -1,4 +1,7 @@
-﻿namespace ECommerce.Web
+using ECommerce.Web.Services;
+using Microsoft.AspNetCore.DataProtection;
+
+namespace ECommerce.Web
 {
     public class Program
     {
@@ -6,19 +9,22 @@
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ─── MVC ─────────────────────────────────────────────────────────────────────
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<ProductImageStore>();
+            builder.Services
+                .AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys")))
+                .SetApplicationName("ECommerce.Web");
 
-            // ─── HttpClient (points to API) ───────────────────────────────────────────────
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:7236/api/");
             });
 
-            // ─── Session (stores JWT token between requests) ──────────────────────────────
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
+                options.Cookie.Name = ".ECommerce.Web.Session";
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
@@ -35,14 +41,12 @@
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-
-            app.UseSession(); // ← must come before MapControllerRoute
-
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Products}/{action=Index}/{id?}");
+                pattern: "{controller=Auth}/{action=Login}/{id?}");
 
             app.Run();
         }
