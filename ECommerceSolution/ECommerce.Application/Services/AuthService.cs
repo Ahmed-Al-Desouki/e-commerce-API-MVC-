@@ -47,7 +47,7 @@ namespace ECommerce.Application.Services
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto dto)
         {
             var user = await _userRepository.GetByEmailAsync(dto.Email);
-            if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password)) //make class for testing
                 throw new UnauthorizedAccessException("Invalid email or password.");
 
             var token = _jwtService.GenerateToken(user);
