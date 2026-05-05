@@ -55,7 +55,10 @@ namespace ECommerce.Application.Services
             ValidateLoginRequest(dto);
 
             var user = await _userRepository.GetByEmailAsync(dto.Email);
+
             if (user is null || !_passwordHasher.VerifyPassword(dto.Password, user.Password))
+
+            if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password)) //make class for testing
                 throw new UnauthorizedAccessException("Invalid email or password.");
 
             var token = _jwtService.GenerateToken(user);
