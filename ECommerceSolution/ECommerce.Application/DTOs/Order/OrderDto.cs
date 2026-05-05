@@ -11,6 +11,8 @@ namespace ECommerce.Application.DTOs.Order
         public int OrderId { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal TotalAmount { get; set; }
+        public string OrderStatus { get; set; } = string.Empty;
+        public string PaymentStatus { get; set; } = string.Empty;
         public List<OrderItemDto> Items { get; set; } = new();
     }
 

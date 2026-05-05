@@ -1,6 +1,6 @@
-﻿using ECommerce.API.Helpers;
+using ECommerce.API.Helpers;
+using ECommerce.Application.DTOs.Order;
 using ECommerce.Application.Interfaces.Services;
-using ECommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,6 @@ namespace ECommerce.API.Controllers
             _orderService = orderService;
         }
 
-        /// <summary>Get all orders placed by the current user.</summary>
         [HttpGet]
         public async Task<IActionResult> GetMyOrders()
         {
@@ -27,15 +26,29 @@ namespace ECommerce.API.Controllers
             return Ok(orders);
         }
 
-        /// <summary>Checkout — converts the current cart into an order.</summary>
-        [HttpPost("checkout")]
-        public async Task<IActionResult> Checkout()
+        [HttpPost("checkout/initiate")]
+        public async Task<IActionResult> InitiateCheckout([FromBody] CheckoutRequestDto request, CancellationToken cancellationToken)
         {
             try
             {
                 var userId = ClaimsHelper.GetUserId(User);
-                var order = await _orderService.CheckoutAsync(userId);
-                return Ok(order);
+                var session = await _orderService.InitiateCheckoutAsync(userId, request, cancellationToken);
+                return Ok(session);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("payment/response-callback")]
+        public async Task<IActionResult> ProcessResponseCallback([FromBody] PaymentCallbackDto callback, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _orderService.ProcessPaymentCallbackAsync(callback, cancellationToken);
+                return Ok(result);
             }
             catch (InvalidOperationException ex)
             {

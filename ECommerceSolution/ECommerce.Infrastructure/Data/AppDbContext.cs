@@ -1,10 +1,6 @@
-﻿using ECommerce.Domain.Entities;
+using ECommerce.Domain.Entities;
+using ECommerce.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Infrastructure.Data
 {
@@ -19,16 +15,15 @@ namespace ECommerce.Infrastructure.Data
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<Payment> Payments => Set<Payment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // One-to-One: User → Cart
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Cart)
                 .WithOne(c => c.User)
                 .HasForeignKey<Cart>(c => c.UserId);
 
-            // Decimal precision for Price and TotalAmount
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
@@ -40,6 +35,29 @@ namespace ECommerce.Infrastructure.Data
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<int>()
+                .HasDefaultValue(OrderStatus.PendingPayment);
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Status)
+                .HasConversion<int>()
+                .HasDefaultValue(PaymentStatus.Pending);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Payment)
+                .WithOne(p => p.Order)
+                .HasForeignKey<Payment>(p => p.OrderId);
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.MerchantOrderId)
+                .IsUnique();
         }
     }
 }

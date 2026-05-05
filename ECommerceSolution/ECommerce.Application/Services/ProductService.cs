@@ -1,12 +1,7 @@
-﻿using ECommerce.Application.DTOs.Product;
+using ECommerce.Application.DTOs.Product;
 using ECommerce.Application.Interfaces.Repositories;
 using ECommerce.Application.Interfaces.Services;
 using ECommerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Application.Services
 {
@@ -27,12 +22,16 @@ namespace ECommerce.Application.Services
 
         public async Task<ProductDto?> GetByIdAsync(int id)
         {
+            ValidateProductId(id);
+
             var product = await _productRepository.GetByIdAsync(id);
             return product is null ? null : MapToDto(product);
         }
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto)
         {
+            ValidateCreateDto(dto);
+
             var product = new Product
             {
                 Name = dto.Name,
@@ -48,8 +47,28 @@ namespace ECommerce.Application.Services
             return MapToDto(product);
         }
 
+        public async Task<ProductDto> UpdateAsync(int id, UpdateProductDto dto)
+        {
+            ValidateProductId(id);
+            ValidateUpdateDto(dto);
+
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product is null)
+                throw new KeyNotFoundException($"Product with id {id} not found.");
+
+            product.Name = dto.Name;
+            product.Price = dto.Price;
+            product.Stock = dto.Stock;
+
+            await _productRepository.SaveChangesAsync();
+
+            return MapToDto(product);
+        }
+
         public async Task DeleteAsync(int id)
         {
+            ValidateProductId(id);
+
             var product = await _productRepository.GetByIdAsync(id);
             if (product is null)
                 throw new KeyNotFoundException($"Product with id {id} not found.");
@@ -65,5 +84,35 @@ namespace ECommerce.Application.Services
             Price = product.Price,
             Stock = product.Stock
         };
+
+        private static void ValidateProductId(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Product id must be greater than zero.");
+        }
+
+        private static void ValidateCreateDto(CreateProductDto dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+            ValidateProductValues(dto.Name, dto.Price, dto.Stock);
+        }
+
+        private static void ValidateUpdateDto(UpdateProductDto dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+            ValidateProductValues(dto.Name, dto.Price, dto.Stock);
+        }
+
+        private static void ValidateProductValues(string? name, decimal price, int stock)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Product name is required.");
+
+            if (price < 0)
+                throw new ArgumentOutOfRangeException(nameof(price), "Product price cannot be negative.");
+
+            if (stock < 0)
+                throw new ArgumentOutOfRangeException(nameof(stock), "Product stock cannot be negative.");
+        }
     }
 }
