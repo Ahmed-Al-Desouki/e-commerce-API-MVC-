@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories Tests\" />
-    <Folder Include="Services Tests\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
