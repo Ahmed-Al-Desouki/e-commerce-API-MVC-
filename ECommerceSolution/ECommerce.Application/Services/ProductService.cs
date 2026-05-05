@@ -40,6 +40,8 @@ namespace ECommerce.Application.Services
                 Stock = dto.Stock
             };
 
+            // No check Null, empty, and negative for price and stock ya dessokei
+
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
 

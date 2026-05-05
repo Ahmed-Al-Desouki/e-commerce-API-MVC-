@@ -3,11 +3,10 @@ using ECommerce.Application.Interfaces.Repositories;
 using ECommerce.Application.Interfaces.Services;
 using ECommerce.Application.Services;
 using ECommerce.Domain.Entities;
-using ECommerce.Infrastructure.Migrations;
 using FluentAssertions;
 using Moq;
 
-namespace ECommerce.Tests.Controllers_Tests
+namespace ECommerce.Tests.Services
 {
     public class AuthServiceTests
     {
