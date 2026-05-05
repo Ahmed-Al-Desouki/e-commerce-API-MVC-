@@ -83,7 +83,7 @@ namespace ECommerce.Tests.Services
                 Password = "Moh165656"
             };
 
-            _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync((User)null);
+            _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync((User?)null);
 
             // act
             var actual = async () => await _authService.LoginAsync(dto);
