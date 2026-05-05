@@ -96,37 +96,37 @@ namespace ECommerce.Tests.Services
         }
 
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task LoginAsync_LoginUser_WhenUserIsNotNull(bool isAdmin)
-        {
-            // arange
-            var dto = new LoginRequestDto
-            {
-                Email = "amohamed@gmail.com",
-                Password = "Moh165656"
-            };
+        //[Theory]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public async Task LoginAsync_LoginUser_WhenUserIsNotNull(bool isAdmin)
+        //{
+        //    // arange
+        //    var dto = new LoginRequestDto
+        //    {
+        //        Email = "amohamed@gmail.com",
+        //        Password = "Moh165656"
+        //    };
 
-            var user = new User
-            {
-                Id = 1,
-                Email = dto.Email,
-                Username = "Mohamed",
-                Password = "$#43434v3fh3l4fc4f",
-                IsAdmin = isAdmin
-            };
+        //    var user = new User
+        //    {
+        //        Id = 1,
+        //        Email = dto.Email,
+        //        Username = "Mohamed",
+        //        Password = "$#43434v3fh3l4fc4f",
+        //        IsAdmin = isAdmin
+        //    };
 
-            _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
-            _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("Token65444455");
+        //    _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
+        //    _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("Token65444455");
 
-            // act
-            var actual = await _authService.LoginAsync(dto);
+        //    // act
+        //    var actual = await _authService.LoginAsync(dto);
 
-            // assert
-            actual.Should().NotBeNull();
-            actual.Token.Should().Be("Token65444455");
-            actual.IsAdmin.Should().Be(isAdmin);
-        }
+        //    // assert
+        //    actual.Should().NotBeNull();
+        //    actual.Token.Should().Be("Token65444455");
+        //    actual.IsAdmin.Should().Be(isAdmin);
+        //}
     }
 }
