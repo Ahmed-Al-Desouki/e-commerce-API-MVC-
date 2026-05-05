@@ -41,6 +41,9 @@ namespace ECommerce.Tests.Services
 
             // assert
             await actual.Should().ThrowAsync<InvalidOperationException>();
+
+            _userRepoMock.Verify(i => i.AddAsync(It.IsAny<User>()), Times.Never);
+            _userRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
         }
 
         [Fact]
@@ -87,6 +90,9 @@ namespace ECommerce.Tests.Services
 
             // assert
             await actual.Should().ThrowAsync<UnauthorizedAccessException>();
+
+            _userRepoMock.Verify(i => i.AddAsync(It.IsAny<User>()), Times.Never);
+            _userRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
         }
 
 

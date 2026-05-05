@@ -43,5 +43,47 @@ namespace ECommerce.Tests.Services
             _productRepoMock.Verify(r => r.AddAsync(It.IsAny<Product>()), Times.Once);
             _productRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
         }
+
+
+        [Fact]
+        public async Task DeleteAsync_KeyNotFoundException_WhenProductIsNull()
+        {
+            // Arrange
+            int id = 1;
+
+            _productRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product)null);
+
+            // Act
+            var actual = async () => await _productService.DeleteAsync(1);
+
+            // Assert
+            await actual.Should().ThrowAsync<KeyNotFoundException>();
+
+            _productRepoMock.Verify(r => r.DeleteAsync(It.IsAny<Product>()), Times.Never);
+            _productRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_WhenProductIsNotNull()
+        {
+            // Arrange
+            int id = 1;
+
+            var product = new Product
+            {
+                Name = "Laptop",
+                Price = 10,
+                Stock = 10
+            };
+
+            _productRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(product);
+
+            // Act
+            await _productService.DeleteAsync(id);
+
+            // Assert
+            _productRepoMock.Verify(i => i.DeleteAsync(product), Times.Once);
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Once);
+        }
     }
 }
