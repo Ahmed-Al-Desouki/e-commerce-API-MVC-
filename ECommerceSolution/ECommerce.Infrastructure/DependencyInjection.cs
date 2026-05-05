@@ -22,6 +22,7 @@ namespace ECommerce.Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             services.Configure<PaymobOptions>(configuration.GetSection(PaymobOptions.SectionName));
+            services.Configure<PaymentFlowOptions>(configuration.GetSection(PaymentFlowOptions.SectionName));
             services.AddHttpClient<IPaymentGateway, PaymobGateway>((serviceProvider, client) =>
             {
                 var options = serviceProvider.GetRequiredService<IOptions<PaymobOptions>>().Value;
@@ -33,6 +34,10 @@ namespace ECommerce.Infrastructure
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
 
+            services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+            services.AddSingleton<IMerchantOrderIdGenerator, MerchantOrderIdGenerator>();
+            services.AddSingleton<IPaymentFlowSettings, PaymentFlowSettings>();
+            services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IProductService, ProductService>();

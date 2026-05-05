@@ -3,6 +3,7 @@ using ECommerce.Application.Interfaces.Repositories;
 using ECommerce.Application.Interfaces.Services;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using System.Globalization;
 
 namespace ECommerce.Application.Services
 {
@@ -15,23 +16,34 @@ namespace ECommerce.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPaymentGateway _paymentGateway;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IMerchantOrderIdGenerator _merchantOrderIdGenerator;
+        private readonly IPaymentFlowSettings _paymentFlowSettings;
 
         public OrderService(
             IOrderRepository orderRepository,
             ICartRepository cartRepository,
             IProductRepository productRepository,
             IUserRepository userRepository,
-            IPaymentGateway paymentGateway)
+            IPaymentGateway paymentGateway,
+            IDateTimeProvider dateTimeProvider,
+            IMerchantOrderIdGenerator merchantOrderIdGenerator,
+            IPaymentFlowSettings paymentFlowSettings)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _userRepository = userRepository;
             _paymentGateway = paymentGateway;
+            _dateTimeProvider = dateTimeProvider;
+            _merchantOrderIdGenerator = merchantOrderIdGenerator;
+            _paymentFlowSettings = paymentFlowSettings;
         }
 
         public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId)
         {
+            ValidateUserId(userId);
+
             await ReleaseExpiredPendingOrdersAsync(userId);
             var orders = await _orderRepository.GetByUserIdAsync(userId);
             return orders.Select(MapToDto);
@@ -39,16 +51,18 @@ namespace ECommerce.Application.Services
 
         public async Task<CheckoutSessionDto> InitiateCheckoutAsync(int userId, CheckoutRequestDto request, CancellationToken cancellationToken = default)
         {
+            ValidateUserId(userId);
             ValidateCheckoutRequest(request);
             await ReleaseExpiredPendingOrdersAsync(userId);
 
+            var currentUtc = _dateTimeProvider.UtcNow;
             var existingPendingOrder = (await _orderRepository.GetByUserIdAsync(userId))
                 .FirstOrDefault(order =>
                     order.Status == OrderStatus.PendingPayment &&
                     order.Payment is not null &&
                     order.Payment.Status == PaymentStatus.Pending &&
                     !string.IsNullOrWhiteSpace(order.Payment.CheckoutUrl) &&
-                    order.Payment.ExpiresAt > DateTime.UtcNow);
+                    order.Payment.ExpiresAt > currentUtc);
 
             if (existingPendingOrder?.Payment is not null)
             {
@@ -92,7 +106,8 @@ namespace ECommerce.Application.Services
                 {
                     ProductId = cartItem.ProductId,
                     Quantity = cartItem.Quantity,
-                    Price = product.Price
+                    Price = product.Price,
+                    Product = product
                 });
             }
 
@@ -101,12 +116,13 @@ namespace ECommerce.Application.Services
                 throw new InvalidOperationException("Cart is empty.");
             }
 
-            var merchantOrderId = $"ECOM-{Guid.NewGuid():N}";
+            var merchantOrderId = _merchantOrderIdGenerator.Generate();
+            var totalAmount = orderItems.Sum(item => item.Price * item.Quantity);
             var order = new Order
             {
                 UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                TotalAmount = orderItems.Sum(item => item.Price * item.Quantity),
+                CreatedAt = currentUtc,
+                TotalAmount = totalAmount,
                 Status = OrderStatus.PendingPayment,
                 BillingFirstName = request.FirstName,
                 BillingLastName = request.LastName,
@@ -124,15 +140,31 @@ namespace ECommerce.Application.Services
                 {
                     Provider = "Paymob",
                     Status = PaymentStatus.Pending,
-                    Amount = orderItems.Sum(item => item.Price * item.Quantity),
+                    Amount = totalAmount,
                     Currency = "EGP",
                     MerchantOrderId = merchantOrderId,
-                    ExpiresAt = DateTime.UtcNow.Add(PendingPaymentWindow)
+                    ExpiresAt = currentUtc.Add(PendingPaymentWindow)
                 }
             };
 
             await _orderRepository.AddAsync(order);
             await _orderRepository.SaveChangesAsync();
+
+            // Temporary local-development bypass:
+            // keep the Paymob integration below untouched, but skip the external redirect when the app is running on localhost.
+            if (_paymentFlowSettings.EnableLocalBypass && IsLocalReturnUrl(request.ReturnUrl))
+            {
+                await CompleteOrderAsSuccessfulLocalPayment(order);
+                await _orderRepository.SaveChangesAsync();
+
+                return new CheckoutSessionDto
+                {
+                    OrderId = order.Id,
+                    PaymentId = order.Payment!.Id,
+                    CheckoutUrl = BuildLocalSuccessUrl(request.ReturnUrl, order),
+                    ExpiresAt = order.Payment.CompletedAt
+                };
+            }
 
             try
             {
@@ -185,6 +217,7 @@ namespace ECommerce.Application.Services
         public async Task<PaymentResultDto> ProcessPaymentCallbackAsync(PaymentCallbackDto callback, CancellationToken cancellationToken = default)
         {
             _ = cancellationToken;
+            ArgumentNullException.ThrowIfNull(callback);
 
             if (!_paymentGateway.IsCallbackAuthentic(callback))
             {
@@ -225,7 +258,7 @@ namespace ECommerce.Application.Services
             {
                 order.Status = OrderStatus.Paid;
                 order.Payment.Status = PaymentStatus.Succeeded;
-                order.Payment.CompletedAt = DateTime.UtcNow;
+                order.Payment.CompletedAt = _dateTimeProvider.UtcNow;
 
                 var cart = await _cartRepository.GetByUserIdAsync(order.UserId);
                 if (cart is not null)
@@ -251,12 +284,13 @@ namespace ECommerce.Application.Services
         private async Task ReleaseExpiredPendingOrdersAsync(int userId)
         {
             var orders = await _orderRepository.GetByUserIdAsync(userId);
+            var currentUtc = _dateTimeProvider.UtcNow;
             var expiredOrders = orders
                 .Where(order =>
                     order.Status == OrderStatus.PendingPayment &&
                     order.Payment is not null &&
                     order.Payment.Status == PaymentStatus.Pending &&
-                    order.Payment.ExpiresAt <= DateTime.UtcNow)
+                    order.Payment.ExpiresAt <= currentUtc)
                 .ToList();
 
             if (!expiredOrders.Any())
@@ -289,6 +323,8 @@ namespace ECommerce.Application.Services
 
         private static void ValidateCheckoutRequest(CheckoutRequestDto request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             var fields = new Dictionary<string, string?>
             {
                 ["First name"] = request.FirstName,
@@ -309,7 +345,53 @@ namespace ECommerce.Application.Services
             }
         }
 
-        private static void FailOrderAndRestoreStock(Order order, string reason)
+        private async Task CompleteOrderAsSuccessfulLocalPayment(Order order)
+        {
+            if (order.Payment is null)
+            {
+                throw new InvalidOperationException("Payment record linked to the order was not found.");
+            }
+
+            order.Status = OrderStatus.Paid;
+            order.Payment.Status = PaymentStatus.Succeeded;
+            order.Payment.CompletedAt = _dateTimeProvider.UtcNow;
+            order.Payment.CheckoutUrl = null;
+            order.Payment.PaymentToken = null;
+            order.Payment.ProviderOrderId = "LOCAL-BYPASS";
+            order.Payment.ProviderTransactionId = $"LOCAL-{order.Id}";
+            order.Payment.CardType = "LocalBypass";
+            order.Payment.CardLastFour = "4242";
+
+            var cart = await _cartRepository.GetByUserIdAsync(order.UserId);
+            if (cart is not null)
+            {
+                ClearPurchasedItemsFromCart(cart, order);
+            }
+        }
+
+        private static bool IsLocalReturnUrl(string? returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return false;
+            }
+
+            if (!Uri.TryCreate(returnUrl, UriKind.Absolute, out var uri))
+            {
+                return false;
+            }
+
+            return uri.IsLoopback;
+        }
+
+        private static string BuildLocalSuccessUrl(string returnUrl, Order order)
+        {
+            var separator = returnUrl.Contains('?', StringComparison.Ordinal) ? "&" : "?";
+            var totalAmount = order.TotalAmount.ToString("0.00", CultureInfo.InvariantCulture);
+            return $"{returnUrl}{separator}localPayment=success&orderId={order.Id}&paymentStatus=Succeeded&orderStatus=Paid&totalAmount={totalAmount}";
+        }
+
+        private void FailOrderAndRestoreStock(Order order, string reason)
         {
             if (order.Status != OrderStatus.PendingPayment || order.Payment is null)
             {
@@ -324,10 +406,10 @@ namespace ECommerce.Application.Services
             order.Status = OrderStatus.PaymentFailed;
             order.Payment.Status = PaymentStatus.Failed;
             order.Payment.FailureReason = reason;
-            order.Payment.CompletedAt = DateTime.UtcNow;
+            order.Payment.CompletedAt = _dateTimeProvider.UtcNow;
         }
 
-        private static void ExpireOrderAndRestoreStock(Order order)
+        private void ExpireOrderAndRestoreStock(Order order)
         {
             if (order.Status != OrderStatus.PendingPayment || order.Payment is null)
             {
@@ -342,7 +424,7 @@ namespace ECommerce.Application.Services
             order.Status = OrderStatus.PaymentExpired;
             order.Payment.Status = PaymentStatus.Expired;
             order.Payment.FailureReason = "Payment session expired.";
-            order.Payment.CompletedAt = DateTime.UtcNow;
+            order.Payment.CompletedAt = _dateTimeProvider.UtcNow;
         }
 
         private static void ClearPurchasedItemsFromCart(Cart cart, Order order)
@@ -395,6 +477,12 @@ namespace ECommerce.Application.Services
 
             var digits = new string(sourcePan.Where(char.IsDigit).ToArray());
             return digits.Length >= 4 ? digits[^4..] : digits;
+        }
+
+        private static void ValidateUserId(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(userId), "User id must be greater than zero.");
         }
     }
 }

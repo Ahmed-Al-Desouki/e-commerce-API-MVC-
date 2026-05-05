@@ -1,12 +1,7 @@
-﻿using ECommerce.Application.DTOs.Cart;
+using ECommerce.Application.DTOs.Cart;
 using ECommerce.Application.Interfaces.Repositories;
 using ECommerce.Application.Interfaces.Services;
 using ECommerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Application.Services
 {
@@ -23,6 +18,8 @@ namespace ECommerce.Application.Services
 
         public async Task<CartDto> GetCartAsync(int userId)
         {
+            ValidateUserId(userId);
+
             var cart = await _cartRepository.GetByUserIdAsync(userId);
             if (cart is null)
                 return new CartDto();
@@ -33,8 +30,8 @@ namespace ECommerce.Application.Services
                 Items = cart.Items.Select(i => new CartItemDto
                 {
                     ProductId = i.ProductId,
-                    ProductName = i.Product.Name,
-                    UnitPrice = i.Product.Price,
+                    ProductName = i.Product?.Name ?? string.Empty,
+                    UnitPrice = i.Product?.Price ?? 0,
                     Quantity = i.Quantity
                 }).ToList()
             };
@@ -42,6 +39,9 @@ namespace ECommerce.Application.Services
 
         public async Task AddToCartAsync(int userId, AddToCartDto dto)
         {
+            ValidateUserId(userId);
+            ValidateAddToCartRequest(dto);
+
             var product = await _productRepository.GetByIdAsync(dto.ProductId);
             if (product is null)
                 throw new KeyNotFoundException("Product not found.");
@@ -67,11 +67,31 @@ namespace ECommerce.Application.Services
 
         public async Task ClearCartAsync(int userId)
         {
+            ValidateUserId(userId);
+
             var cart = await _cartRepository.GetByUserIdAsync(userId);
-            if (cart is null) return;
+            if (cart is null)
+                return;
 
             cart.Items.Clear();
             await _cartRepository.SaveChangesAsync();
+        }
+
+        private static void ValidateUserId(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(userId), "User id must be greater than zero.");
+        }
+
+        private static void ValidateAddToCartRequest(AddToCartDto dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+
+            if (dto.ProductId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(dto.ProductId), "Product id must be greater than zero.");
+
+            if (dto.Quantity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(dto.Quantity), "Quantity must be greater than zero.");
         }
     }
 }

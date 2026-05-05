@@ -1,6 +1,7 @@
 ﻿using ECommerce.API.Helpers;
 using ECommerce.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -119,6 +120,22 @@ namespace ECommerce.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> PaymentCallback(CancellationToken cancellationToken)
         {
+            // Temporary local-development bypass:
+            // if checkout was short-circuited locally, render the success page directly instead of posting a Paymob callback.
+            if (string.Equals(Request.Query["localPayment"], "success", StringComparison.OrdinalIgnoreCase))
+            {
+                return View("PaymentResult", new PaymentResultViewModel
+                {
+                    OrderId = int.TryParse(Request.Query["orderId"], out var orderId) ? orderId : 0,
+                    IsSuccess = true,
+                    IsPending = false,
+                    Message = "Payment completed successfully.",
+                    OrderStatus = Request.Query["orderStatus"].ToString() is { Length: > 0 } orderStatus ? orderStatus : "Paid",
+                    PaymentStatus = Request.Query["paymentStatus"].ToString() is { Length: > 0 } paymentStatus ? paymentStatus : "Succeeded",
+                    TotalAmount = decimal.TryParse(Request.Query["totalAmount"], NumberStyles.Number, CultureInfo.InvariantCulture, out var totalAmount) ? totalAmount : 0
+                });
+            }
+
             var client = _factory.CreateClient("ApiClient");
             var callback = new PaymentCallbackApiModel
             {
