@@ -51,7 +51,7 @@ namespace ECommerce.Tests.Services
             // Arrange
             int id = 1;
 
-            _productRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product)null);
+            _productRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product?)null);
 
             // Act
             var actual = async () => await _productService.DeleteAsync(1);
@@ -84,6 +84,101 @@ namespace ECommerce.Tests.Services
             // Assert
             _productRepoMock.Verify(i => i.DeleteAsync(product), Times.Once);
             _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ReturnListFromProductsDto()
+        {
+            // Arrange
+            var products = new List<Product>() 
+            {
+                new Product
+                {
+                    Id = 1,
+                    Name = "Laptop1",
+                    Price = 101,
+                    Stock = 101
+                },
+                new Product
+                {
+                    Id = 2,
+                    Name = "Laptop2",
+                    Price = 102,
+                    Stock = 102
+                },
+            };
+
+            var productsDto = new List<ProductDto>()
+            {
+                new ProductDto
+                {
+                    Id = 1,
+                    Name = "Laptop1",
+                    Price = 101,
+                    Stock = 101
+                },
+                new ProductDto
+                {
+                    Id = 2,
+                    Name = "Laptop2",
+                    Price = 102,
+                    Stock = 102
+                },
+            };
+
+            _productRepoMock.Setup(i => i.GetAllAsync()).ReturnsAsync(products);
+
+            // Act
+            var actual = await _productService.GetAllAsync();
+
+            // Assert
+            actual.Should().BeEquivalentTo(productsDto);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ReturnProductsDto_WhenProductIsNotNull()
+        {
+            int id = 1;
+            // Arrange
+            var product = new Product
+            {
+                Id = 1,
+                Name = "Laptop1",
+                Price = 101,
+                Stock = 101
+            };
+            
+
+            var productDto = new ProductDto
+            {
+                Id = 1,
+                Name = "Laptop1",
+                Price = 101,
+                Stock = 101
+            };
+
+            _productRepoMock.Setup(i => i.GetByIdAsync(id)).ReturnsAsync(product);
+
+            // Act
+            var actual = await _productService.GetByIdAsync(id);
+
+            // Assert
+            actual.Should().BeEquivalentTo(productDto);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ReturnNull_WhenProductIsNull()
+        {
+            int id = 1;
+            // Arrange
+
+            _productRepoMock.Setup(i => i.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+
+            // Act
+            var actual = await _productService.GetByIdAsync(id);
+
+            // Assert
+            actual.Should().BeNull();
         }
     }
 }
