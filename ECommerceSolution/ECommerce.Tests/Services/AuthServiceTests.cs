@@ -14,14 +14,19 @@ namespace ECommerce.Tests.Services
 
         private readonly Mock<IUserRepository> _userRepoMock;
         private readonly Mock<IJwtService> _jwtServiceMock;
+        private readonly Mock<IPasswordHasher> _passwordHasherMock;
         private readonly AuthService _authService;
 
         public AuthServiceTests()
         {
             _userRepoMock = new Mock<IUserRepository>();
             _jwtServiceMock = new Mock<IJwtService>();
+            _passwordHasherMock = new Mock<IPasswordHasher>();
 
-            _authService = new AuthService(_userRepoMock.Object, _jwtServiceMock.Object);
+            _authService = new AuthService(
+                _userRepoMock.Object,
+                _jwtServiceMock.Object,
+                _passwordHasherMock.Object);
         }
 
         [Fact]
@@ -30,7 +35,9 @@ namespace ECommerce.Tests.Services
             // arange
             var dto = new RegisterRequestDto
             {
-                Email = "amohamedahmad68@gmail.com"
+                Username = "Mohamed",
+                Email = "amohamedahmad68@gmail.com",
+                Password = "Moh1239987"
             };
 
             _userRepoMock.Setup(i => i.EmailExistsAsync(dto.Email)).ReturnsAsync(true);
@@ -58,6 +65,7 @@ namespace ECommerce.Tests.Services
             };
 
             _userRepoMock.Setup(i => i.EmailExistsAsync(dto.Email)).ReturnsAsync(false);
+            _passwordHasherMock.Setup(i => i.HashPassword(dto.Password)).Returns("hashed-password");
             _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("token123212");
 
             // act
@@ -71,6 +79,7 @@ namespace ECommerce.Tests.Services
 
             _userRepoMock.Verify(i => i.AddAsync(It.IsAny<User>()), Times.Once);
             _userRepoMock.Verify(i => i.SaveChangesAsync(), Times.Once);
+            _passwordHasherMock.Verify(i => i.HashPassword(dto.Password), Times.Once);
         }
 
         [Fact]
@@ -95,38 +104,71 @@ namespace ECommerce.Tests.Services
             _userRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
         }
 
+        [Fact]
+        public async Task LoginAsync_UnauthorizedAccessException_WhenPasswordIsInvalid()
+        {
+            // arange
+            var dto = new LoginRequestDto
+            {
+                Email = "amohamed@gmail.com",
+                Password = "Moh165656"
+            };
 
-        //[Theory]
-        //[InlineData(true)]
-        //[InlineData(false)]
-        //public async Task LoginAsync_LoginUser_WhenUserIsNotNull(bool isAdmin)
-        //{
-        //    // arange
-        //    var dto = new LoginRequestDto
-        //    {
-        //        Email = "amohamed@gmail.com",
-        //        Password = "Moh165656"
-        //    };
+            var user = new User
+            {
+                Id = 1,
+                Email = dto.Email,
+                Username = "Mohamed",
+                Password = "hashed-password",
+                IsAdmin = false
+            };
 
-        //    var user = new User
-        //    {
-        //        Id = 1,
-        //        Email = dto.Email,
-        //        Username = "Mohamed",
-        //        Password = "$#43434v3fh3l4fc4f",
-        //        IsAdmin = isAdmin
-        //    };
+            _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
+            _passwordHasherMock
+                .Setup(i => i.VerifyPassword(dto.Password, user.Password))
+                .Returns(false);
 
-        //    _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
-        //    _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("Token65444455");
+            // act
+            var actual = async () => await _authService.LoginAsync(dto);
 
-        //    // act
-        //    var actual = await _authService.LoginAsync(dto);
+            // assert
+            await actual.Should().ThrowAsync<UnauthorizedAccessException>();
+        }
 
-        //    // assert
-        //    actual.Should().NotBeNull();
-        //    actual.Token.Should().Be("Token65444455");
-        //    actual.IsAdmin.Should().Be(isAdmin);
-        //}
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task LoginAsync_LoginUser_WhenCredentialsAreValid(bool isAdmin)
+        {
+            // arange
+            var dto = new LoginRequestDto
+            {
+                Email = "amohamed@gmail.com",
+                Password = "Moh165656"
+            };
+
+            var user = new User
+            {
+                Id = 1,
+                Email = dto.Email,
+                Username = "Mohamed",
+                Password = "hashed-password",
+                IsAdmin = isAdmin
+            };
+
+            _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
+            _passwordHasherMock
+                .Setup(i => i.VerifyPassword(dto.Password, user.Password))
+                .Returns(true);
+            _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("Token65444455");
+
+            // act
+            var actual = await _authService.LoginAsync(dto);
+
+            // assert
+            actual.Should().NotBeNull();
+            actual.Token.Should().Be("Token65444455");
+            actual.IsAdmin.Should().Be(isAdmin);
+        }
     }
 }
