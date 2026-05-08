@@ -18,8 +18,6 @@ namespace ECommerce.Tests.Services
             _productService = new ProductService(_productRepoMock.Object);
         }
 
-        //Method_ShouldResult_WhenCondition
-
         [Fact]
         public async Task CreateAsync_ProductDto_WhenProductIsNotNull()
         {
@@ -179,6 +177,165 @@ namespace ECommerce.Tests.Services
 
             // Assert
             actual.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task UpdateAsync_ArgumentOutOfRangeException_WhenIdLessThanOrEqualZero(int id)
+        {
+            // Arrange
+            var productDto = new UpdateProductDto
+            {
+                Name = "Laptop",
+                Price = 10,
+                Stock = 10
+            };
+
+            // Actual
+            var actual = async () => await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            await actual.Should().ThrowAsync<ArgumentOutOfRangeException>();
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ArgumentNullException_WhenProductDtoIsNull()
+        {
+            // Arrange
+            int id = 1;
+
+            // Act
+            Func<Task> act = async () => await _productService.UpdateAsync(id, null);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentNullException>();
+            _productRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("   ")]
+        public async Task UpdateAsync_ArgumentException_WhenNameIsNullOrWhiteSpace(string name)
+        {
+            // Arrange
+            var productDto = new UpdateProductDto
+            {
+                Name = name,
+                Price = 10,
+                Stock = 10
+            };
+
+            int id = 1;
+
+            // Actual
+            var actual = async () => await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            await actual.Should().ThrowAsync<ArgumentException>();
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ArgumentOutOfRangeException_WhenPriceisNegative()
+        {
+            // Arrange
+            var productDto = new UpdateProductDto
+            {
+                Name = "Laptop",
+                Price = -40,
+                Stock = 10
+            };
+
+            int id = 1;
+
+            // Actual
+            var actual = async () => await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            await actual.Should().ThrowAsync<ArgumentOutOfRangeException>();
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ArgumentOutOfRangeException_WhenStockIsNegative()
+        {
+            // Arrange
+            var productDto = new UpdateProductDto
+            {
+                Name = "Laptop",
+                Price = 10,
+                Stock = -10
+            };
+
+            int id = 1;
+
+            // Actual
+            var actual = async () => await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            await actual.Should().ThrowAsync<ArgumentOutOfRangeException>();
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_KeyNotFoundException_WhenProductIsNull()
+        {
+            // Arrange
+            int id = 1;
+
+            var productDto = new UpdateProductDto
+            {
+                Name = "Laptop",
+                Price = 10,
+                Stock = 10
+            };
+
+            _productRepoMock.Setup(i => i.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+
+            // Actual
+            var actual = async () => await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            await actual.Should().ThrowAsync<KeyNotFoundException>();
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_UpdatedProduct_WhenProductIsNotNull()
+        {
+            // Arrange
+            int id = 1;
+
+            var productDto = new UpdateProductDto
+            {
+                Name = "Laptop",
+                Price = 10,
+                Stock = 10
+            };
+
+            var product = new Product
+            {
+                Id = 1,
+                Name = "Laptop",
+                Price = 10,
+                Stock = 10
+            };
+
+            _productRepoMock.Setup(i => i.GetByIdAsync(id)).ReturnsAsync(product);
+
+            // Actual
+            var actual = await _productService.UpdateAsync(id, productDto);
+
+            // Assert
+            actual.Id.Should().Be(1);
+            actual.Name.Should().Be("Laptop");
+            actual.Price.Should().Be(10);
+            actual.Stock.Should().Be(10);
+
+            _productRepoMock.Verify(i => i.SaveChangesAsync(), Times.Once);
         }
     }
 }
