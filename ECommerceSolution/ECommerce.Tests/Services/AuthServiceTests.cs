@@ -124,9 +124,8 @@ namespace ECommerce.Tests.Services
             };
 
             _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
-            _passwordHasherMock
-                .Setup(i => i.VerifyPassword(dto.Password, user.Password))
-                .Returns(false);
+
+            _passwordHasherMock.Setup(i => i.VerifyPassword(dto.Password, user.Password)).Returns(false);
 
             // act
             var actual = async () => await _authService.LoginAsync(dto);
@@ -157,9 +156,7 @@ namespace ECommerce.Tests.Services
             };
 
             _userRepoMock.Setup(i => i.GetByEmailAsync(dto.Email)).ReturnsAsync(user);
-            _passwordHasherMock
-                .Setup(i => i.VerifyPassword(dto.Password, user.Password))
-                .Returns(true);
+            _passwordHasherMock.Setup(i => i.VerifyPassword(dto.Password, user.Password)).Returns(true);
             _jwtServiceMock.Setup(i => i.GenerateToken(It.IsAny<User>())).Returns("Token65444455");
 
             // act
